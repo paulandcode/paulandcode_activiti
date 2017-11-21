@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         metadata-complete="false" version="3.1">
+
+  <!-- web.xml的加载顺序(与代码顺序无关): context-param -> listener -> filter -> servlet -->
+
+  <!--================================================== 加载配置文件 begin ==================================================-->
+  <!-- 若不写该参数,则默认的路径是/WEB-INF/applicationContext.xml -->
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath*:config/spring-*.xml</param-value>
+  </context-param>
+  <!-- 为contextConfigLocation配置监听器. -->
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
+  <!--================================================== 加载配置文件 end ==================================================-->
+  
+  <!--================================================== 配置webAppRootKey begin ==================================================-->
+  <!-- "webPath"这个字符串可以随便写任何字符串,如果不配置默认值是"webapp.root". -->
+  <!-- 程序中用System.getProperty("webPath"),配置文件中用${webPath},来动态获取项目的绝对路径. -->
+  <!-- 一般返回结果例如：D:\Java\apache-tomcat-9.0.0\webapps\paulandcode_base\ -->
+  <!-- 若在tomcat下部署多个项目而不改"webapp.root",则会产生冲突. -->
+  <context-param>
+    <param-name>webAppRootKey</param-name>
+    <param-value>webPath</param-value>
+  </context-param>
+  <!-- 为webAppRootKey配置监听器 -->
+  <!-- 通过org.springframework.web.util.WebAppRootListener这个监听器来注入项目的的绝对路径 -->
+  <!-- 若在web.xml中已经配置了org.springframework.web.util.Log4jConfigListener这个监听器, -->
+  <!-- 则不需要配置WebAppRootListener了.因为Log4jConfigListener已经包含了WebAppRootListener的功能. -->
+  <!-- <listener>
+        	<listener-class>org.springframework.web.util.WebAppRootListener</listener-class>
+  	   </listener> -->
+  <!--================================================== 配置webAppRootKey end ==================================================-->
+  
+  <!--================================================== 配置log4j begin ==================================================-->
+  <!-- log4j配置文件默认为resources下的的log4j.properties,若想更改配置文件的位置,需添加如下参数并配置Log4jConfigListener-->
+  <context-param>
+  	<param-name>log4jConfigLocation</param-name>
+    <param-value>classpath:config/log4j.properties</param-value>
+  </context-param>
+  <!-- log4jRefreshInterval作用: 容器每600秒会扫描一次log4j配置文件 -->
+  <context-param>
+    <param-name>log4jRefreshInterval</param-name>
+    <param-value>600000</param-value>
+  </context-param>
+  <!-- 为log4jConfigLocation配置监听器,同时该监听器包含了WebAppRootListener的功能,所以不需要再配置WebAppRootListener. -->
+  <listener>
+     <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+  </listener>
+  <!--================================================== 配置log4j end ==================================================-->
+  
+  <!--================================================== 配置字符编码过滤器 begin ==================================================-->
+  <filter>
+    <filter-name>characterEncodingFilter</filter-name>
+    <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>UTF-8</param-value>
+    </init-param>
+    <!-- 当request中已经被指定了一个字符集的时候是否再将用endcoding对应的字符集设置到request和response中去?默认为否 -->
+	<!-- <init-param>
+         	<param-name>forceEncoding</param-name>
+            <param-value>true</param-value>
+         </init-param> -->
+  </filter>
+  <filter-mapping>
+    <filter-name>characterEncodingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <!--================================================== 配置字符编码过滤器 end ==================================================-->
+  
+  <!-- "/"和"/*"的区别: -->
+  <!--    "/*":会匹配所有的url:路径型(类似:/login)的和后缀型的url(类似:*.jsp,*.js和*.html等). -->
+  <!--        这种形式将会覆盖所有其它的servlet.不管你发出了什么样的请求,最终都会在这个servlet中结束. -->
+  <!-- 	  "/":会匹配到/login这样的路径型url,不会匹配到类似*.jsp这样的后缀型url. -->
+  <!--        这种形式不会覆盖任何其它的servlet.它仅仅替换了servlet容器中内建的默认servlet. -->
+
+  <!--================================================== 配置SpringMVC前端控制器 begin ==================================================-->
+  <servlet>
+    <servlet-name>SpringMVC</servlet-name>
+    <servlet-class>
+	  		org.springframework.web.servlet.DispatcherServlet
+	  	</servlet-class>
+    <init-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>classpath*:config/spring-mvc.xml</param-value>
+    </init-param>
+    <!-- load-on-startup为1表示: 容器启动的时候就加载这个servlet(0或正整数),且优先级为1(正数的值越小,优先级越高) -->
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SpringMVC</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+  <!--================================================== 配置SpringMVC前端控制器 end ==================================================-->
+  
+  <!--================================================== 配置StatViewServlet begin ==================================================-->
+  <!-- 配置StatViewServlet后,访问http://localhost:8080/oa/druid/index.html,会提供一系列的监控: -->
+  <!--    数据源,SQL监控,SQL防火墙,Web应用,URI监控,Session监控,spring监控,JSON API等 -->
+  <!--    在StatViewSerlvet输出的html页面中,有一个功能是Reset All,执行这个操作之后,会导致所有计数器清零,重新计数.可以配置如下参数关闭它:
+            <init-param>
+               <param-name>resetEnable</param-name>
+               <param-value>false</param-value>
+            </init-param> -->
+  <!-- StatViewSerlvet展示出来的监控信息比较敏感,是系统运行的内部情况,如果你需要做访问控制,可以配置allow(允许)和deny(禁止)这两个参数,例如:
+          <init-param>
+             <param-name>allow</param-name>
+             <param-value>128.242.127.1/24,128.242.128.1</param-value>
+          </init-param>
+          <init-param>
+             <param-name>deny</param-name>
+             <param-value>128.242.127.4</param-value>
+          </init-param> -->
+  <!--    访问控制判断规则:deny优先于allow,如果在deny列表中,就算在allow列表中,也会被拒绝.如果allow没有配置或者为空,则允许所有访问. -->
+  <!--    解释128.242.127.1/24:  24表示,前面24位是子网掩码,比对的时候,前面24位相同就匹配 -->
+  <!--    128,242,127这些都代表十进制,范围为0-255,转换为2进制对应的就是8位,前24位相同代表128.242.127.x,x可以是0-255之间数字 -->
+  <!--    配置了allow或者deny之后,由于匹配规则不支持IPV6,会导致IPV6无法访问 -->
+  <!--    IPV6解释: IPV6是用于替代现行版本IP协议(IPv4)的下一代IP协议.(IPv4最大的问题在于网络地址资源有限,严重制约了互联网的应用和发展.IPV6号称可以为全世界的每一粒沙子编上一个网址.) -->
+  <servlet>
+    <servlet-name>DruidStatView</servlet-name>
+    <servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DruidStatView</servlet-name>
+    <url-pattern>/druid/*</url-pattern>
+  </servlet-mapping>
+  <!--================================================== 配置StatViewServlet end ==================================================-->
+  
+  <!--================================================== 404页面跳转 ==================================================-->
+  <error-page>
+    <error-code>404</error-code>
+    <location>/WEB-INF/jsp/404.jsp</location>
+  </error-page>
+  
+  <!--================================================== 设置session超时时间为30分钟 ==================================================-->
+  <session-config>
+    <session-timeout>30</session-timeout>
+  </session-config>
+  
+</web-app>

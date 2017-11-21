@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context-4.2.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+            http://www.springframework.org/schema/aop
+            http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+    <!-- 该文件作用: 进行数据库相关配置,包括: -->
+    <!-- 	(1)配置注解驱动 -->
+    <!--    (2)配置数据库连接池 -->
+    <!--    (3)SQL监控 -->
+    <!--    (4)SQL防火墙: 防止SQL注入 -->
+    <!--    (5)jdbc监控 -->
+    <!--    (5)jdbc事务管理 -->
+    <!--    (6)spring与mybatis整合 -->
+    <!--    (7)配置DAO接口所在包名 -->
+	
+	<!--================================================== 配置注解驱动 ==================================================-->
+	<tx:annotation-driven/>
+
+	<!--================================================== 加载配置文件 ==================================================-->
+	<context:property-placeholder location="classpath*:config/config.properties"/>
+
+	<!--================================================== dataSource begin ==================================================-->
+	<!-- 数据库连接池使用了阿里巴巴的开源项目Druid,其主要特点如下: -->
+	<!-- (1)性能比其他连接池好 -->
+	<!-- (2)监控SQL: 执行时间,ResultSet持有时间,返回行数,更新行数,错误次数,错误堆栈信息等. -->
+	<!-- (3)可扩展: 提供了Filter-Chain模式的扩展API,类似Serlvet的Filter,配置Filter拦截JDBC的方法调用. -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+		<property name="url" value="${jdbc.url}"/>
+		<property name="username" value="${jdbc.username}"/>
+		<property name="password" value="${jdbc.password}"/>
+		<property name="initialSize" value="${jdbc.initialSize}"/>
+		<property name="maxActive" value="${jdbc.maxActive}"/>
+        <!-- 代理的过滤器 -->
+		<property name="proxyFilters">
+			<list>
+                <!-- 用于SQL监控. -->
+				<ref bean="stat-filter"/>
+                <!-- 用于SQL防火墙. -->
+				<ref bean="wall-filter"/>
+			</list>
+		</property>
+	</bean>
+    <!-- 配置SQL监控,监控页面地址：http://localhost:8080/paulandcode_base/druid -->
+	<bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <!-- 配置slowSql的标准,执行时间超过slowSqlMillis的就是慢.slowSqlMillis的缺省值为3000,也就是3秒. -->
+        <!-- log4j.properties中配置了slowSql的日志输出 -->
+		<property name="slowSqlMillis" value="1000"/>
+        <!-- 允许对SlowSql进行日志记录 -->
+		<property name="logSlowSql" value="true"/>
+        <!-- 允许sql合并: 例如有2个sql语句:SELECT * FROM t FROM id = 1, SELECT * FROM t FROM id = 2.会被合并成select * from t where id = ?,然后作为一条语句来统计. -->
+		<property name="mergeSql" value="true"/>
+	</bean>
+    <!-- 配置SQL防火墙 -->
+	<bean id="wall-filter" class="com.alibaba.druid.wall.WallFilter">
+		<property name="dbType" value="mysql"/>
+		<property name="config" ref="wall-filter-config"/>
+	</bean>
+    <!-- 配置SQL防火墙参数 -->
+	<bean id="wall-filter-config" class="com.alibaba.druid.wall.WallConfig">
+        <!-- 允许一次执行多条语句 -->
+		<property name="multiStatementAllow" value="true"/>
+	</bean>
+	<!--================================================== dataSource end ==================================================-->
+
+	<!--================================================== jdbc监控 begin ==================================================-->
+	<!-- 配置AOP,实现对jdbc的监控. -->
+	<aop:config>
+        <!-- Advisor是Pointcut和Advice的配置器,将Advice的代码注入Pointcut的位置. -->
+		<aop:advisor advice-ref="druid-stat-interceptor" pointcut-ref="druid-stat-pointcut"/>
+	</aop:config>
+    <!-- 通知(切入点所切入的代码): 按照alibaba提供的拦截器实现对jdbc的监控. -->
+    <bean id="druid-stat-interceptor" class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor"/>
+    <!-- 切入点: 使用正则表达式切点,作用域为多例 -->
+	<bean id="druid-stat-pointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut" scope="prototype">
+		<property name="patterns">
+			<list>
+				<value>com.paulandcode.controller.*</value>
+				<value>com.paulandcode.service.*</value>
+			</list>
+		</property>
+	</bean>
+	<!--================================================== jdbc监控 end ==================================================-->
+
+    <!--================================================== 事务 begin ==================================================-->
+    <bean id="dataSourceProxy" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
+        <property name="targetDataSource" ref="dataSource"/>
+    </bean>
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSourceProxy"/>
+	</bean>
+	<!--  声明式容器事务管理 ,transaction-manager指定事务管理器为transactionManager -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+    <!-- 以aop的方式添加事务 -->
+    <aop:config>
+        <!-- 只对业务逻辑层实施事务 -->
+        <!-- 添加事务,除了aop还可以直接在方法前加@Transactional注解来添加事务 -->
+        <aop:pointcut id="txPointcut" expression="execution(* com.paulandcode.service..*.*(..))"/>
+        <!-- Advisor定义，切入点和通知分别为txPointcut、txAdvice -->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut"/>
+    </aop:config>
+    <!--================================================== 事务 end ==================================================-->
+
+    <!--================================================== spring与mybatis整合 ==================================================-->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 若基本的MyBatis配置需要改变,则指定MyBatis的配置文件路径. -->
+		<property name="configLocation" value="classpath:config/mybatis.xml"/>
+		<property name="dataSource" ref="dataSource"/>
+        <!-- 此处还要指定mapper文件位置: -->
+        <!-- <property name="mapperLocations" value="classpath*:com/paulandcode/dao/*Dao.xml"/> -->
+        <!-- 此处若不配置,则需要mapper文件所在包名和DAO接口所在包完全一致. -->
+        <!-- 这样才能使DAO接口生成的class文件和xml文件都在com/paulandcode/dao这个文件夹下,使他们一一对应. -->
+        <!-- 本来可以省略以下代码的,但是该项目整合了jeesite的(更新mapper映射文件无需重启服务器)功能,在重写mybatis源码时需要该属性 -->
+        <property name="mapperLocations" value="classpath*:com/paulandcode/dao/*Dao.xml"/>
+	</bean>
+
+    <!--================================================== 配置DAO接口所在包名 ==================================================-->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.paulandcode.dao"/>
+	</bean>
+
+</beans>

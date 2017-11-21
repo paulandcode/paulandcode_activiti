@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"  
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<!-- 该文件作用: 修改mybatis的基本配置 -->
+
+<configuration>
+	<settings>
+        <!-- 该配置可以实现将下划线自动转换为驼峰 -->
+        <!-- 比如以前要这么写: -->
+        <!--	SELECT file_id as fileId,
+                       dir_id as dirId
+                FROM sys_directory_file -->
+		<!-- 现在可以这么写: -->
+		<!--    SELECT file_id,
+                       dir_id
+                FROM sys_directory_file -->
+		<setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
+</configuration>
