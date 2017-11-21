@@ -51,7 +51,7 @@
 			</list>
 		</property>
 	</bean>
-    <!-- 配置SQL监控,监控页面地址：http://localhost:8080/paulandcode_base/druid -->
+    <!-- 配置SQL监控,监控页面地址：http://localhost:8080/paulandcode_activiti/druid -->
 	<bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
         <!-- 配置slowSql的标准,执行时间超过slowSqlMillis的就是慢.slowSqlMillis的缺省值为3000,也就是3秒. -->
         <!-- log4j.properties中配置了slowSql的日志输出 -->

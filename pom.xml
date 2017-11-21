@@ -8,15 +8,15 @@
 	<!-- 项目或者组织的唯一标志,并且配置时生成的路径也是由此生成,如com.paulandcode生成的相对路径为:/com/paulandcode -->
 	<groupId>com.paulandcode</groupId>
 	<!-- 项目的通用名称 -->
-	<artifactId>paulandcode_base</artifactId>
+	<artifactId>paulandcode_activiti</artifactId>
 	<!-- 打包的机制,如pom,jar,maven-plugin,ejb,war,ear,rar,par -->
 	<packaging>war</packaging>
 	<!-- 项目版本 -->
 	<version>6.6.6</version>
 	<!-- 项目的名称,Maven产生的文档用 -->
-	<name>paulandcode_base</name>
+	<name>paulandcode_activiti</name>
 	<!-- 哪个网站可以找到这个项目,提示如果 Maven资源列表没有,可以直接上该网站寻找,Maven产生的文档用 -->
-	<url>https://github.com/paulandcode_base</url>
+	<url>https://github.com/paulandcode_activiti</url>
 	<!-- 项目描述,Maven产生的文档用 -->
    <description>Just do it.</description>
    <!-- 创始年份 -->

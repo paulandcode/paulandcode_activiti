@@ -1,2 +1,1 @@
-# paulandcode_activiti
-SSM整合activiti
+# SSM整合activiti

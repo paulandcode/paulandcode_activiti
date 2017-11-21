@@ -43,12 +43,12 @@ public class SysUserServiceImpl implements SysUserService {
 
 	@Override
 	public Result fileUpload(MultipartFile[] file) {
-		// http://localhost:8080/paulandcode_base/
+		// http://localhost:8080/paulandcode_activiti/
 		String basePath = HttpContextUtils.getHttpServletRequest().getRequestURL().toString()
 				.split("sys/fileUpload")[0];
 		// fileUpload/now.txt.txt
 		String filePath = "fileUpload/" + file[0].getOriginalFilename();
-		// D:/java/tomcat/webapps/paulandcode_base/
+		// D:/java/tomcat/webapps/paulandcode_activiti/
 		String webPath = System.getProperty("webPath").replace("\\", "/");
 		try {
 			file[0].transferTo(new File(webPath + filePath));

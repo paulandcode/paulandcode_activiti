@@ -21,7 +21,7 @@
   <!--================================================== 配置webAppRootKey begin ==================================================-->
   <!-- "webPath"这个字符串可以随便写任何字符串,如果不配置默认值是"webapp.root". -->
   <!-- 程序中用System.getProperty("webPath"),配置文件中用${webPath},来动态获取项目的绝对路径. -->
-  <!-- 一般返回结果例如：D:\Java\apache-tomcat-9.0.0\webapps\paulandcode_base\ -->
+  <!-- 一般返回结果例如：D:\Java\apache-tomcat-9.0.0\webapps\paulandcode_activiti\ -->
   <!-- 若在tomcat下部署多个项目而不改"webapp.root",则会产生冲突. -->
   <context-param>
     <param-name>webAppRootKey</param-name>
