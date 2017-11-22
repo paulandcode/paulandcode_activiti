@@ -3,16 +3,14 @@
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		xsi:schemaLocation="http://www.springframework.org/schema/beans
 				http://www.springframework.org/schema/beans/spring-beans.xsd">
-
+				
+	<!-- 流程引擎配置 -->
 	<bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneInMemProcessEngineConfiguration">
+		<!-- 数据库类型,默认为h2 -->
+		<property name="databaseType" value="mysql"/>
 		<property name="databaseSchemaUpdate" value="true"/>
-		<property name="jobExecutorActivate" value="true" />
-
-        <!-- 部署drl文件时需要设置一个自定义的部署解析类 -->
-        <property name="customPostDeployers">
-            <list>
-                <bean class="org.activiti.engine.impl.rules.RulesDeployer" />
-            </list>
-        </property>
+		<property name="jobExecutorActivate" value="true"/>
+        <property name="history" value="full"/>
 	</bean>
+
 </beans>
