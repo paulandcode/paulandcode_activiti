@@ -75,6 +75,7 @@
 		<jsp-version>2.2</jsp-version>
 		<jstl-version>1.2</jstl-version>
 		<!-- tools version setting -->
+		<activiti-version>5.22.0</activiti-version>
 		<hibernate-validator-version>5.4.1.Final</hibernate-validator-version>
 		<junit-version>4.12</junit-version>
 		<slf4j-version>1.7.19</slf4j-version>
@@ -98,7 +99,9 @@
 
 	<!--================================================== Maven依赖 begin ==================================================-->
 	<dependencies>
-	
+		
+		<!-- Maven各个依赖包版本加载机制:例:a包依赖2.0版本的c包,b包依赖3.0版本的c包,如果a包写在前面,则c包版本为2.0,反之则为3.0 -->
+		<!-- 由于好多包都依赖spring包,所以,spring的各个包一般写在最前面 -->
 		<!--================================================== spring begin ==================================================-->
 	  	<dependency>
 	  		<groupId>org.springframework</groupId>
@@ -284,6 +287,19 @@
 			<version>${jstl-version}</version>
 		</dependency>
 		<!--================================================== jsp end ==================================================-->
+		
+		<!--================================================== activiti begin ==================================================-->
+		<dependency>
+  			<groupId>org.activiti</groupId>
+  			<artifactId>activiti-engine</artifactId>
+  			<version>${activiti-version}</version>
+  		</dependency>
+  		<dependency>
+			<groupId>org.activiti</groupId>
+			<artifactId>activiti-spring</artifactId>
+			<version>${activiti-version}</version>
+		</dependency>
+		<!--================================================== activiti end ==================================================-->
 		
 	</dependencies>
 	<!--================================================== Maven依赖 end ==================================================-->

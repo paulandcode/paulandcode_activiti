@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans
+				http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<!--================================================== 流程引擎配置 ==================================================-->	
+	<bean id="processEngineConfiguration" class="org.activiti.engine.impl.cfg.StandaloneProcessEngineConfiguration">
+		<!-- 配置数据库 -->
+		<property name="jdbcDriver" value="com.mysql.jdbc.Driver"/>
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/paulandcode_activiti"/>
+		<property name="jdbcUsername" value="root"/>
+		<property name="jdbcPassword" value="root"/>
+		<!-- 声明数据库脚本更新策略: -->
+		<!-- 	false:默认值,什么都不做 -->
+		<!-- 	true:表不存在时自动建表,版本不一致时自动升级版本并记录升级过程 -->
+		<!-- 	create-drop:创建引擎时执行初始化脚本,引擎销毁时执行删除数据库脚本 -->
+		<property name="databaseSchemaUpdate" value="create-drop"/>
+		<!-- 是否启用作业执行功能: -->
+		<!-- 	false:默认值,不启用 -->
+		<!-- 	true:引擎会不断刷新数据库的作业表,检查是否存在需要执行的作业(时间事件或异步任务执行),有则触发作业的执行 -->
+		<property name="jobExecutorActivate" value="true"/>
+		<!-- 记录历史的级别: -->
+		<!-- 	none:不保存任何历史记录,可以提高系统性能 -->
+		<!-- 	activity:保存所有流程实例,任务,活动信息 -->
+		<!-- 	audit:默认值,比activity级别多保存了表单信息 -->
+		<!-- 	full:比audit多保存了详细信息,如流程变量,表单属性 -->
+        <property name="history" value="full"/>
+	</bean>
+
+</beans>
+
+
+
+
+
+
+
+
+
+
+
+
+

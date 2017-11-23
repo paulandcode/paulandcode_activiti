@@ -37,6 +37,7 @@
 	<mvc:default-servlet-handler/>
 	
     <!--================================================== 静态资源映射  ==================================================-->
+    <!-- 该静态路径在webapp下,junit加载配置文件时会将该路径当成resources路径,它不在resources中,所以会报错.如果是tomcat启动,则不会有该问题. -->
     <mvc:resources mapping="/static/**" location="/WEB-INF/static/"/>
     
    	<!--================================================== 配置JSP视图解析器  ==================================================-->
@@ -117,8 +118,8 @@
 		<!-- 上传文件大小限制,单位为字节 -->
 		<property name="maxUploadSize" value="1000000000"/>
 		<!-- 上传文件的缓存路径 -->
-		<!-- 该缓存路径在webapp下,junit加载配置文件时会将该路径当成resources路径,它不在resources中,所以会报错.如果是tomcat中,不会有该问题. -->
-		<!-- <property name="uploadTempDir" value="fileUpload/temp"/> -->
+		<!-- 该缓存路径在webapp下,junit加载配置文件时会将该路径当成resources路径,它不在resources中,所以会报错.如果是tomcat启动,则不会有该问题. -->
+		<property name="uploadTempDir" value="fileUpload/temp"/>
 	</bean>
 	
 </beans>
